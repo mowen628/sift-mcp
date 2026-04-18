@@ -162,8 +162,11 @@ async def _run_vol3(image: str, case_id: str, plugin: str, pid: int = None):
     return [TextContent(type="text", text=f"{header}\n{'─' * 60}\n" + "\n".join(lines) + truncated)]
 
 
+VOL3_BIN = os.getenv("VOL3_BIN", "/home/sansforensics/sift-mcp-env/bin/vol")
+
+
 def _build_cmd(image: str, plugin: str, pid: int = None) -> list:
-    cmd = ["python3", "-m", "volatility3", "-f", image, plugin]
+    cmd = ["sudo", VOL3_BIN, "-f", image, plugin]
     if pid:
         cmd += ["--pid", str(pid)]
     return cmd
@@ -182,4 +185,4 @@ async def _run_cmd(cmd: list) -> tuple[str, str, int]:
     except asyncio.TimeoutError:
         return "", "Volatility3 timed out after 10 minutes", 1
     except FileNotFoundError:
-        return "", "volatility3 not found — activate venv: source ~/sift-mcp-env/bin/activate", 1
+        return "", f"volatility3 not found at {VOL3_BIN} — check VOL3_BIN in .env", 1
