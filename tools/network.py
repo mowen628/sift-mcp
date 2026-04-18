@@ -216,6 +216,14 @@ async def _device_scan(subnet: str):
                 hostname = hn.get("name", "")
 
         mac_upper = mac.upper()
+        # SIFT VM doesn't see its own MAC via ARP — identify by IP
+        if ip == "10.0.0.8" and not mac:
+            label = "sift-workstation (self)"
+            flag = ""
+            entry = f"  {ip:<16} {'(self)':<20} {'':<20} {label}"
+            devices.append(entry)
+            continue
+
         inventory_entry = MAC_INVENTORY.get(mac_upper)
 
         if inventory_entry:
