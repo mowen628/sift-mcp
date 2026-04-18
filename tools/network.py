@@ -127,13 +127,17 @@ async def _device_scan(subnet: str):
     # Parse XML output
     try:
         root = ET.fromstring(result.stdout)
-    except ET.ParseError as e:
-        return [TextContent(type="text", text=f"Failed to parse nmap output: {e}")]
+    except Exception as e:
+        return [TextContent(type="text", text=f"Failed to parse nmap output ({type(e).__name__}): {e}\nstdout preview: {result.stdout[:200]}")]
+
+    all_hosts = root.findall("host")
+    if not all_hosts:
+        return [TextContent(type="text", text=f"nmap returned 0 hosts in XML.\nstdout length: {len(result.stdout)}\npreview: {result.stdout[:300]}")]
 
     devices = []
     unknown = []
 
-    for host in root.findall("host"):
+    for host in all_hosts:
         if host.find("status").get("state") != "up":
             continue
 
