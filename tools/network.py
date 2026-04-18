@@ -113,7 +113,7 @@ async def _device_scan(subnet: str):
 
     try:
         result = subprocess.run(
-            ["nmap", "-sn", "-oX", "-", subnet],
+            ["sudo", "nmap", "-sn", "-oX", "-", subnet],
             capture_output=True, text=True, timeout=60
         )
     except FileNotFoundError:
@@ -128,16 +128,12 @@ async def _device_scan(subnet: str):
     try:
         root = ET.fromstring(result.stdout)
     except Exception as e:
-        return [TextContent(type="text", text=f"Failed to parse nmap output ({type(e).__name__}): {e}\nstdout preview: {result.stdout[:200]}")]
-
-    all_hosts = root.findall("host")
-    if not all_hosts:
-        return [TextContent(type="text", text=f"nmap returned 0 hosts in XML.\nstdout length: {len(result.stdout)}\npreview: {result.stdout[:300]}")]
+        return [TextContent(type="text", text=f"Failed to parse nmap output ({type(e).__name__}): {e}")]
 
     devices = []
     unknown = []
 
-    for host in all_hosts:
+    for host in root.findall("host"):
         if host.find("status").get("state") != "up":
             continue
 
