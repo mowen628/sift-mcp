@@ -162,26 +162,31 @@ async def _dns_query(query: str, limit: int):
 
 
 async def _device_scan(subnet: str):
+    import asyncio as _asyncio
     # Validate subnet is within expected range
     if not subnet.startswith("10.0.0"):
         raise ConstraintError(f"Subnet {subnet} is outside the allowed LAN range (10.0.0.0/24)")
 
     try:
-        result = subprocess.run(
-            ["sudo", "nmap", "-sn", "-oX", "-", subnet],
-            capture_output=True, text=True, timeout=60
+        proc = await _asyncio.create_subprocess_exec(
+            "sudo", "nmap", "-sn", "-oX", "-", subnet,
+            stdout=_asyncio.subprocess.PIPE,
+            stderr=_asyncio.subprocess.PIPE,
         )
+        stdout_bytes, stderr_bytes = await _asyncio.wait_for(proc.communicate(), timeout=60)
+        stdout = stdout_bytes.decode()
+        stderr = stderr_bytes.decode()
     except FileNotFoundError:
         return [TextContent(type="text", text="nmap not found — install with: sudo apt install nmap")]
-    except subprocess.TimeoutExpired:
+    except _asyncio.TimeoutError:
         return [TextContent(type="text", text="nmap scan timed out after 60s")]
 
-    if result.returncode != 0:
-        return [TextContent(type="text", text=f"nmap error: {result.stderr}")]
+    if proc.returncode != 0:
+        return [TextContent(type="text", text=f"nmap error: {stderr}")]
 
     # Parse XML output
     try:
-        root = ET.fromstring(result.stdout)
+        root = ET.fromstring(stdout)
     except Exception as e:
         return [TextContent(type="text", text=f"Failed to parse nmap output ({type(e).__name__}): {e}")]
 
