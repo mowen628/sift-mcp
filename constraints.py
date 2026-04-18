@@ -5,11 +5,21 @@ import os
 from pathlib import Path
 
 # Paths the server is allowed to read from
+# Forensic tools need broad read access — write access remains tightly restricted
 ALLOWED_READ_PATHS = [
     "/cases",
-    "/opt/zimmermantools",
+    "/opt",
     "/tmp",
-    "/home/sansforensics/sift-mcp",
+    "/home",
+    "/usr",
+    "/bin",
+    "/sbin",
+    "/etc",
+    "/var",
+    "/lib",
+    "/mnt",
+    "/media",
+    "/srv",
 ]
 
 # Paths the server is allowed to write to
