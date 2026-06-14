@@ -210,3 +210,9 @@ __marimo__/
 .env
 logs/*.jsonl
 cases/*/
+
+# Local recovery artifacts (added 2026-06-14 post-cutover repoint)
+.env.bak-*
+captures/
+*.log.gz
+log2timeline-*.log
