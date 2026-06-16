@@ -209,6 +209,7 @@ __marimo__/
 # sift-mcp
 .env
 logs/*.jsonl
+!logs/session-20260616-*.jsonl  # showcase traces for Find Evil submission
 cases/*/
 
 # Local recovery artifacts (added 2026-06-14 post-cutover repoint)
